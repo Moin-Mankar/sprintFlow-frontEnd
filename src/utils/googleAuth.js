@@ -35,7 +35,14 @@ export function openGoogleLoginPopup() {
   const top = window.screenY + Math.round((window.outerHeight - height) / 2)
   const features = `width=${width},height=${height},left=${left},top=${top}`
 
-  const popup = window.open('/oauth2/authorization/google', 'sprintflow-google-login', features)
+  const backendUrl =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
+const popup = window.open(
+  `${backendUrl}/oauth2/authorization/google`,
+  'sprintflow-google-login',
+  features
+)
   if (!popup) {
     return Promise.reject(new Error('Popup was blocked by the browser. Allow popups and try again.'))
   }
