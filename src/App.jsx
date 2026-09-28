@@ -12,6 +12,7 @@ import ProjectBoard from './pages/ProjectBoard.jsx'
 import TaskDetail from './pages/TaskDetail.jsx'
 import TaskSearch from './pages/TaskSearch.jsx'
 import Notifications from './pages/Notifications.jsx'
+import OAuth2Callback from './pages/OAuth2Callback.jsx'
 
 function NotFound() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/join/:token" element={<JoinInvitation />} />
         <Route path="/notifications" element={<Notifications />} />
       </Route>
+      <Route path="/oauth2/callback" element={<OAuth2Callback />} />
 
       <Route path="/" element={<Navigate to="/workspaces" replace />} />
       <Route path="*" element={<NotFound />} />
