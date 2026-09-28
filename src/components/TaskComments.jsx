@@ -8,7 +8,8 @@ import { formatDateTime, initials } from '../utils/format.js'
 // cannot be edited here. Deletion is author-only server-side, and the backend
 // answers a non-author with a generic 500, so the control is shown only on the
 // caller's own comments.
-export default function TaskComments({ taskId, currentUserId, projectId }) {
+export default function TaskComments({ taskId, currentUserId, projectId ,
+  readOnly = false,}) {
   const [result, setResult] = useState({ id: null, data: null, error: '' })
   const [reload, setReload] = useState(0)
   const [draft, setDraft] = useState('')
@@ -133,7 +134,7 @@ export default function TaskComments({ taskId, currentUserId, projectId }) {
                 <span className="muted">{formatDateTime(c.createdAt)}</span>
               </p>
               <p className="comment-body">{c.content}</p>
-              {currentUserId && c.userId === currentUserId && (
+              {currentUserId && c.userId === currentUserId && !readOnly && (
                 <p className="comment-actions">
                   {confirmId === c.id ? (
                     <>
@@ -168,23 +169,27 @@ export default function TaskComments({ taskId, currentUserId, projectId }) {
         </ul>
       )}
 
-      <form className="comment-form" onSubmit={handleAdd} noValidate>
-        <label className="field">
-          <span>Add comment</span>
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={3}
-            maxLength={1000}
-          />
-          {fieldErrors.content && (
-            <span className="field-error">{fieldErrors.content.join('; ')}</span>
-          )}
-        </label>
-        <button type="submit" disabled={busy}>
-          {busy ? 'Posting…' : 'Post comment'}
-        </button>
-      </form>
+      {!readOnly && (
+  <form className="comment-form" onSubmit={handleAdd} noValidate>
+    <label className="field">
+      <span>Add comment</span>
+      <textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        rows={3}
+        maxLength={1000}
+      />
+      {fieldErrors.content && (
+        <span className="field-error">{fieldErrors.content.join('; ')}
+        </span>
+      )}
+    </label>
+
+    <button type="submit" disabled={busy}>
+      {busy ? 'Posting…' : 'Post comment'}
+    </button>
+  </form>
+)}
     </div>
   )
 }

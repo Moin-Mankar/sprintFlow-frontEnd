@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { apiFetch } from '../api/client.js'
 import { formatDateTime, initials } from '../utils/format.js'
+import { useProjectEvents } from '../realtime/useProjectEvents.js'
 
 // GET /api/tasks/{taskId}/activities -> List<TaskActivityResponse>
 // { id, taskActivityType, description, createdAt, user_id, userName }
 // Ordered createdAt ASC by the backend and recorded automatically by TaskService and
 // CommentService, so this section is display-only: there is no activity write endpoint.
-export default function TaskActivityFeed({ taskId }) {
+export default function TaskActivityFeed({ taskId, projectId }) {
   const [result, setResult] = useState({ id: null, data: null, error: '' })
   const [reload, setReload] = useState(0)
 
@@ -29,6 +30,25 @@ export default function TaskActivityFeed({ taskId }) {
       active = false
     }
   }, [taskId, reload])
+
+  // Events carry only ids and a message, so a matching task event schedules a
+  // re-read from the server; the short timer coalesces bursts (e.g. a move also
+  // recording MOVED activity) and lets the publishing transaction commit.
+  const liveTimer = useRef(null)
+  useEffect(
+    () => () => {
+      if (liveTimer.current) clearTimeout(liveTimer.current)
+    },
+    [],
+  )
+  useProjectEvents(projectId, (event) => {
+    if (event.taskId !== taskId) return
+    if (liveTimer.current) return
+    liveTimer.current = setTimeout(() => {
+      liveTimer.current = null
+      setReload((n) => n + 1)
+    }, 400)
+  })
 
   const loading = result.id !== taskId
   const activities = result.data || []
