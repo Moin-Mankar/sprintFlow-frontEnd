@@ -1,5 +1,7 @@
 const TOKEN_KEY = 'token'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+
 export class ApiError extends Error {
   constructor({ status, message, fieldErrors = {}, path = null, raw = null }) {
     super(message || `Request failed (${status})`)
@@ -88,7 +90,7 @@ export async function apiFetch(url, { method = 'GET', body, headers = {}, ...res
 
   let response
   try {
-    response = await fetch(url, options)
+    response = await fetch(`${API_BASE_URL}${url}`, options)
   } catch {
     throw new ApiError({
       status: 0,

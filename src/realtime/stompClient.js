@@ -19,6 +19,7 @@ const PROJECT_EVENT_TYPES = new Set([
 ])
 
 const ENDPOINT_PATH = '/ws'
+const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || ''
 const RECONNECT_DELAYS = [1000, 2000, 5000, 10000, 15000]
 
 const listeners = new Set()
@@ -121,11 +122,13 @@ function open() {
     return
   }
   wantConnection = true
-  setStatus('connecting')
-  const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws'
   let candidate
-  try {
-    candidate = new WebSocket(`${scheme}://${window.location.host}${ENDPOINT_PATH}`)
+try {
+  const url = WS_BASE_URL
+    ? `${WS_BASE_URL}${ENDPOINT_PATH}`
+    : `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${ENDPOINT_PATH}`
+
+  candidate = new WebSocket(url)
   } catch {
     setStatus('disconnected')
     scheduleReconnect()
